@@ -1,0 +1,78 @@
+# 程序启动：内核执行 ./test 程序，参数为 ["./test"]，环境变量共49个，返回0表示启动成功
+execve("./test", ["./test"], 0x7fff004bce10 /* 49 vars */) = 0
+
+# 内存管理：获取当前堆内存的结束地址（堆顶），返回地址 0x562ef3a81000
+brk(NULL)                               = 0x562ef3a81000
+
+# 架构配置：尝试设置x86_64架构参数，参数无效返回-1（EINVAL），为常规试探性调用，不影响程序运行
+arch_prctl(0x3001 /* ARCH_??? */, 0x7ffd1274d390) = -1 EINVAL (Invalid argument)
+
+# 库检查：检查系统预加载库文件 /etc/ld.so.preload 是否可读，返回-1（ENOENT）表示文件不存在，正常
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+
+# 库缓存加载：打开系统库缓存文件 /etc/ld.so.cache（只读+执行后关闭），返回文件描述符3
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+# 获取文件3的状态（类型为普通文件、权限644、大小64836字节），返回0表示成功
+fstat(3, {st_mode=S_IFREG|0644, st_size=64836, ...}) = 0
+# 内存映射：将文件3映射到内存（地址NULL、大小64836、只读、私有映射），返回映射起始地址
+mmap(NULL, 64836, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f9ea56c8000
+# 关闭文件描述符3，释放资源
+close(3)                                = 0
+
+# 加载标准C库：打开 libc 核心库文件 /lib/x86_64-linux-gnu/libc.so.6，返回文件描述符3
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+# 读取文件3的ELF文件头（832字节），返回实际读取字节数
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\300A\2\0\0\0\0\0"..., 832) = 832
+# 定位读取：从文件3的64字节偏移处读取784字节，解析ELF程序头
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+# 定位读取：从848字节偏移处读取32字节，获取GNU库标识
+pread64(3, "\4\0\0\0\20\0\0\0\5\0\0\0GNU\0\2\0\0\300\4\0\0\0\3\0\0\0\0\0\0\0", 32, 848) = 32
+# 定位读取：从880字节偏移处读取68字节，获取库版本信息
+pread64(3, "\4\0\0\0\24\0\0\0\3\0\0\0GNU\0W\222s/x1X\306o\264\363udX\312$"..., 68, 880) = 68
+# 获取文件3的状态（类型为普通文件、权限755、大小2029592字节）
+fstat(3, {st_mode=S_IFREG|0755, st_size=2029592, ...}) = 0
+# 匿名映射：分配8192字节匿名内存（可读可写、私有映射），用于库加载临时空间
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f9ea56c6000
+# 重复读取ELF程序头（验证数据）
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+# 重复读取GNU标识（验证数据）
+pread64(3, "\4\0\0\0\20\0\0\0\5\0\0\0GNU\0\2\0\0\300\4\0\0\0\3\0\0\0\0\0\0\0", 32, 848) = 32
+# 重复读取版本信息（验证数据）
+pread64(3, "\4\0\0\0\24\0\0\0\3\0\0\0GNU\0W\222s/x1X\306o\264\363udX\312$"..., 68, 880) = 68
+# 映射libc库到内存（只读、私有映射），返回映射起始地址
+mmap(NULL, 2037344, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f9ea54d4000
+# 映射libc可执行段（可读可执行、固定地址），完成库代码加载
+mmap(0x7f9ea54f6000, 1540096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x22000) = 0x7f9ea54f6000
+# 映射libc只读数据段，加载库常量/数据
+mmap(0x7f9ea566e000, 319488, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x19a000) = 0x7f9ea566e000
+# 映射libc可写数据段，加载全局变量/动态数据
+mmap(0x7f9ea56bc000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1e7000) = 0x7f9ea56bc000
+# 匿名映射：分配13920字节内存，补充libc运行时空间
+mmap(0x7f9ea56c2000, 13920, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f9ea56c2000
+# 关闭文件描述符3，完成libc库加载
+close(3)                                = 0
+
+# 架构配置：设置线程本地存储（FS段）基地址，完成线程环境初始化
+arch_prctl(ARCH_SET_FS, 0x7f9ea56c7540) = 0
+# 内存保护：将0x7f9ea56bc000地址开始的16384字节设为只读，防止误写
+mprotect(0x7f9ea56bc000, 16384, PROT_READ) = 0
+# 内存保护：将程序代码段设为只读，保护程序指令
+mprotect(0x562ec194f000, 4096, PROT_READ) = 0
+# 内存保护：将库代码段设为只读
+mprotect(0x7f9ea5705000, 4096, PROT_READ) = 0
+# 释放内存：解除库缓存的内存映射，释放无用空间
+munmap(0x7f9ea56c8000, 64836)           = 0
+
+# 输出准备：获取标准输出（文件描述符1）的状态，确认输出设备可用
+fstat(1, {st_mode=S_IFREG|0664, st_size=2195, ...}) = 0
+# 内存检查：再次获取堆顶地址，确认当前内存布局
+brk(NULL)                               = 0x562ef3a81000
+# 内存扩展：将堆顶扩展到0x562ef3aa2000，分配新的堆内存
+brk(0x562ef3aa2000)                     = 0x562ef3aa2000
+
+# 核心功能：向标准输出（文件描述符1）写入字符串"Test KM..."，返回10表示成功写入10字节
+write(1, "Test KM...", 10Test KM...)              = 10
+
+# 程序退出：调用exit_group终止进程，退出码0表示执行成功
+exit_group(0)                           = ?
++++ exited with 0 +++  # 进程正常退出，无错误
