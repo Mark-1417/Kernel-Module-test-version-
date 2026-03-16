@@ -28,6 +28,6 @@ sudo insmod hello.ko # 加载模块（要输密码）
 dmesg | tail -5 # 看结果（根据这里的hello.c，会输出 Kernel module loading successful！）
 gedit test.c # 这是测试程序
 gcc test.c -o test
-strace ./test > strace_log.txt 2>&1 # 生成strace日志到文件，错误也一块保存
+strace ./test > strace_log.txt 2>&1 # 生成strace日志到文件，错误也一块保存，我让AI帮我写了一版注释，详见“strace日志注释”
   ```
 这样走下来就是这里叽里咕噜的一大串文件了。
